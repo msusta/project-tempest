@@ -1,0 +1,114 @@
+name: 'IaaC Pull Request'
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+env:
+  tf_version: '1.5.7'
+  tg_version: '0.76.1'
+  # we need to exec on base_ref - target of the pull request
+  aws_env: ${{ github.base_ref }}
+
+jobs:
+  tf_fmt:
+    name: "Terraform formatting"
+    runs-on: ubuntu-latest
+    # Read-only
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: "Install Terraform"
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: ${{ env.tf_version }}
+      - name: "Terraform FMT"
+        run: terraform fmt -check -recursive
+        working-directory: stacks
+
+  tfsec:
+    name: "Terraform security"
+    runs-on: ubuntu-latest
+    # Read-only
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Without init on submodules only checks our code, which is fine
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+        with:
+          tfsec_args: --exclude-downloaded-modules
+          working_directory: stacks
+          github_token: ${{ github.token }}
+
+  checks:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.base_ref }}
+    permissions:
+      contents: read
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+      - name: Check terragrunt HCL
+        uses: gruntwork-io/terragrunt-action@v2.1.8
+        with:
+          tf_version: ${{ env.tf_version }}
+          tg_version: ${{ env.tg_version }}
+          tg_dir: terragrunt/${{ env.aws_env }}
+          tg_command: 'hclfmt --check --diff'
+      - name: Check Terrgrunt consistency
+        uses: elderstudios/terragrunt-consistency-check@v2
+
+  plan:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.base_ref }}
+    # Don't run multiple plan jobs at once
+    concurrency:
+      group: pr-${{ github.base_ref }}
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    needs: [ tf_fmt, tfsec, checks ]
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+      - name: Assuming AWS role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_PLAN }}
+          role-session-name: gha-infra-pr
+          aws-region: ${{ vars.AWS_REGION }}
+      # This cannot work - cache is on runner and TG is in container.
+      #- name: Terraform cache configuration
+      #  run: |
+      #    echo "plugin_cache_dir = \"$HOME/.terraform.d/plugin-cache\"" > ~/.terraformrc
+      #    mkdir -p ~/.terraform.d/plugin-cache
+      #- name: Terraform cache
+      #  id: cache
+      #  uses: actions/cache@v3
+      #  with:
+      #    path: ~/.terraform.d
+      #    key: tf-cache
+      - name: Plan
+        uses: gruntwork-io/terragrunt-action@v2.1.8
+        env:
+          # lambda packaging support
+          #INPUT_PRE_EXEC_1: sudo apt -qq update
+          #INPUT_PRE_EXEC_2: sudo apt install -qq -y --no-install-recommends python3
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tf_version: ${{ env.tf_version }}
+          tg_version: ${{ env.tg_version }}
+          tg_dir: terragrunt/${{ env.aws_env }}/env-${{ env.aws_env }}
+          tg_comment: 1
+          tg_command: 'run-all plan -lock=false'
