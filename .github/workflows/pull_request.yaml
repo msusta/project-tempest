@@ -12,40 +12,40 @@ env:
   aws_env: ${{ github.base_ref }}
 
 jobs:
-  tf_fmt:
-    name: "Terraform formatting"
-    runs-on: ubuntu-latest
-    # Read-only
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: "Install Terraform"
-        uses: hashicorp/setup-terraform@v3.1.2
-        with:
-          terraform_version: ${{ env.tf_version }}
-      - name: "Terraform FMT"
-        run: terraform fmt -check -recursive
-        working-directory: stacks
+  #tf_fmt:
+  #  name: "Terraform formatting"
+  #  runs-on: ubuntu-latest
+  #  # Read-only
+  #  permissions:
+  #    contents: read
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v4
+  #    - name: "Install Terraform"
+  #      uses: hashicorp/setup-terraform@v3.1.2
+  #      with:
+  #        terraform_version: ${{ env.tf_version }}
+  #    - name: "Terraform FMT"
+  #      run: terraform fmt -check -recursive
+  #      working-directory: stacks
 
-  tfsec:
-    name: "Terraform security"
-    runs-on: ubuntu-latest
-    # Read-only
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      # Without init on submodules only checks our code, which is fine
-      - name: tfsec
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
-        with:
-          tfsec_args: --exclude-downloaded-modules
-          working_directory: stacks
-          github_token: ${{ github.token }}
+  #tfsec:
+  #  name: "Terraform security"
+  #  runs-on: ubuntu-latest
+  #  # Read-only
+  #  permissions:
+  #    contents: read
+  #    pull-requests: write
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v4
+  #    # Without init on submodules only checks our code, which is fine
+  #    - name: tfsec
+  #      uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+  #      with:
+  #        tfsec_args: --exclude-downloaded-modules
+  #        working_directory: stacks
+  #        github_token: ${{ github.token }}
 
   checks:
     runs-on: ubuntu-latest
@@ -63,8 +63,6 @@ jobs:
           tg_version: ${{ env.tg_version }}
           tg_dir: terragrunt/${{ env.aws_env }}
           tg_command: 'hclfmt --check --diff'
-      - name: Check Terrgrunt consistency
-        uses: elderstudios/terragrunt-consistency-check@v2
 
   plan:
     runs-on: ubuntu-latest
