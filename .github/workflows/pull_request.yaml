@@ -108,6 +108,6 @@ jobs:
         with:
           tf_version: ${{ env.tf_version }}
           tg_version: ${{ env.tg_version }}
-          tg_dir: terragrunt/${{ env.aws_env }}/env-${{ env.aws_env }}
+          tg_dir: terragrunt/${{ env.aws_env }}
           tg_comment: 1
           tg_command: 'run-all plan -lock=false'
