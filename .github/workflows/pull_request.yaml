@@ -47,7 +47,8 @@ jobs:
   #        working_directory: stacks
   #        github_token: ${{ github.token }}
 
-  checks:
+  hcl_fmt:
+    name: "Terragrunt formatting"
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.base_ref }}

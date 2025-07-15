@@ -35,3 +35,10 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# terragrunt cache directories
+**/.terragrunt-cache/*
+
+# Terragrunt debug output file (when using `--terragrunt-debug` option)
+# See: https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-debug
+terragrunt-debug.tfvars.json
