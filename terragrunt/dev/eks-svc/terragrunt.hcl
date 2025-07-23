@@ -14,7 +14,7 @@ dependency "eks" {
   config_path = "../eks"
 }
 
-inputs = merge(#include.root.locals.merged["eks_alb"],
+inputs = merge(
   {
     vpc_id                          = dependency.vpc.outputs.vpc_id
     vpc_private_subnets_cidr_blocks = dependency.vpc.outputs.private_subnets_cidr_blocks
