@@ -6,7 +6,7 @@ on:
       - dev
 
 env:
-  tf_version: '1.5.7'
+  tf_version: '1.11.4'
   tg_version: '0.76.1'
   # we need to exec on base_ref - target of the pull request
   aws_env: ${{ github.base_ref }}
