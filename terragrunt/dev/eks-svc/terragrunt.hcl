@@ -16,7 +16,8 @@ dependency "eks" {
 
 inputs = merge(#include.root.locals.merged["eks_alb"],
   {
-    vpc_id = dependency.vpc.outputs.vpc_id
+    vpc_id                          = dependency.vpc.outputs.vpc_id
+    vpc_private_subnets_cidr_blocks = dependency.vpc.outputs.private_subnets_cidr_blocks
 
     cluster_name      = dependency.eks.outputs.cluster_name
     oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn

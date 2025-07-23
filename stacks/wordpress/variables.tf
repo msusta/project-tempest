@@ -9,3 +9,7 @@ variable "vpc_private_subnets_cidr_blocks" {
 }
 
 variable "eks_cluster_name" {}
+
+variable "domain" {}
+
+variable "acm_certificate_arn" {}

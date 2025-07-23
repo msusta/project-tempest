@@ -30,7 +30,7 @@ resource "helm_release" "wordpress" {
   name       = var.name
   repository = "https://charts.bitnami.com/bitnami"
   chart      = "wordpress"
-  version    = "6.8.1"
+  #version    = "6.8.1"
 
   create_namespace = false
   cleanup_on_fail  = true
@@ -41,12 +41,56 @@ resource "helm_release" "wordpress" {
 
   set = [
     {
+      name  = "image.debug"
+      value = "true"
+    },
+    {
       name  = "service.type"
       value = "ClusterIP"
     },
     {
+      name  = "ingress.enabled"
+      value = "true"
+    },
+    {
+      name  = "ingress.hostname"
+      value = var.domain
+    },
+    {
+      name  = "ingress.path"
+      value = "/*"
+    },
+    {
+      name  = "ingress.annotations.kubernetes\\.io/ingress\\.class"
+      value = "alb"
+    },
+    {
+      name  = "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type"
+      value = "ip"
+    },
+    {
+      name  = "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/load-balancer-name"
+      value = "${var.name}"
+    },
+    {
+      name  = "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme"
+      value = "internet-facing"
+    },
+    {
+      name  = "ingress.annotations.alb\\.ingress\\.kubernetes\\.io/certificate-arn"
+      value = var.acm_certificate_arn
+    },
+    {
       name  = "persistence.enabled"
       value = "false"
+    },
+    {
+      name  = "autoscaling.enabled"
+      value = "true"
+    },
+    {
+      name  = "autoscaling.minReplicas"
+      value = "2"
     },
     {
       name  = "wordpressAutoUpdateLevel"
@@ -70,8 +114,7 @@ resource "helm_release" "wordpress" {
     },
     {
       name  = "externalDatabase.password"
-      # fixme
-      value = "blah"
+      value = random_password.db_password.result
     },
     {
       name  = "externalDatabase.database"
