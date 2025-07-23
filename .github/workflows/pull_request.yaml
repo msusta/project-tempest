@@ -77,8 +77,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: write
-    #needs: [ tf_fmt, tfsec, checks ]
-    needs: [ checks ]
+    needs: [ tf_fmt, tfsec, hcl_fmt ]
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v4
