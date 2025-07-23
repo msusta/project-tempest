@@ -12,40 +12,40 @@ env:
   aws_env: ${{ github.base_ref }}
 
 jobs:
-  #tf_fmt:
-  #  name: "Terraform formatting"
-  #  runs-on: ubuntu-latest
-  #  # Read-only
-  #  permissions:
-  #    contents: read
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v4
-  #    - name: "Install Terraform"
-  #      uses: hashicorp/setup-terraform@v3.1.2
-  #      with:
-  #        terraform_version: ${{ env.tf_version }}
-  #    - name: "Terraform FMT"
-  #      run: terraform fmt -check -recursive
-  #      working-directory: stacks
+  tf_fmt:
+    name: "Terraform formatting"
+    runs-on: ubuntu-latest
+    # Read-only
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: "Install Terraform"
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          terraform_version: ${{ env.tf_version }}
+      - name: "Terraform FMT"
+        run: terraform fmt -check -recursive
+        working-directory: stacks
 
-  #tfsec:
-  #  name: "Terraform security"
-  #  runs-on: ubuntu-latest
-  #  # Read-only
-  #  permissions:
-  #    contents: read
-  #    pull-requests: write
-  #  steps:
-  #    - name: Checkout
-  #      uses: actions/checkout@v4
-  #    # Without init on submodules only checks our code, which is fine
-  #    - name: tfsec
-  #      uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
-  #      with:
-  #        tfsec_args: --exclude-downloaded-modules
-  #        working_directory: stacks
-  #        github_token: ${{ github.token }}
+  tfsec:
+    name: "Terraform security"
+    runs-on: ubuntu-latest
+    # Read-only
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Without init on submodules only checks our code, which is fine
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
+        with:
+          tfsec_args: --exclude-downloaded-modules
+          working_directory: stacks
+          github_token: ${{ github.token }}
 
   hcl_fmt:
     name: "Terragrunt formatting"
@@ -88,17 +88,6 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_PLAN }}
           role-session-name: gha-infra-pr
           aws-region: ${{ vars.AWS_REGION }}
-      # This cannot work - cache is on runner and TG is in container.
-      #- name: Terraform cache configuration
-      #  run: |
-      #    echo "plugin_cache_dir = \"$HOME/.terraform.d/plugin-cache\"" > ~/.terraformrc
-      #    mkdir -p ~/.terraform.d/plugin-cache
-      #- name: Terraform cache
-      #  id: cache
-      #  uses: actions/cache@v3
-      #  with:
-      #    path: ~/.terraform.d
-      #    key: tf-cache
       - name: Plan
         uses: gruntwork-io/terragrunt-action@v2.1.8
         env:
