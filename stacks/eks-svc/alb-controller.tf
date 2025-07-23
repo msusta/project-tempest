@@ -18,14 +18,14 @@ module "role_alb_controller" {
 # SA
 resource "kubernetes_service_account" "alb_controller" {
   metadata {
-    name = "aws-load-balancer-controller"
+    name      = "aws-load-balancer-controller"
     namespace = "kube-system"
     labels = {
-        "app.kubernetes.io/name"= "aws-load-balancer-controller"
-        "app.kubernetes.io/component"= "controller"
+      "app.kubernetes.io/name"      = "aws-load-balancer-controller"
+      "app.kubernetes.io/component" = "controller"
     }
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.role_alb_controller.iam_role_arn
+      "eks.amazonaws.com/role-arn"               = module.role_alb_controller.iam_role_arn
       "eks.amazonaws.com/sts-regional-endpoints" = "true"
     }
   }
@@ -44,16 +44,16 @@ resource "helm_release" "alb_controller" {
     {
       name  = "region"
       value = split(":", data.aws_eks_cluster.this.arn)[3]
-    },{
+      }, {
       name  = "vpcId"
       value = var.vpc_id
-    },{
+      }, {
       name  = "serviceAccount.create"
       value = "false"
-    },{
+      }, {
       name  = "serviceAccount.name"
       value = "aws-load-balancer-controller"
-    },{
+      }, {
       name  = "clusterName"
       value = var.cluster_name
     }
