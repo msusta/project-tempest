@@ -2,7 +2,7 @@
 module "efs" {
   source = "terraform-aws-modules/efs/aws"
 
-  name           = var.cluster_name
+  name = var.cluster_name
 
   lifecycle_policy = {
     transition_to_ia = "AFTER_30_DAYS"
@@ -36,7 +36,7 @@ module "efs" {
   #    subnet_id = "subnet-fghi345a"
   #  }
   #}
-  security_group_vpc_id      = var.vpc_id
+  security_group_vpc_id = var.vpc_id
   security_group_rules = {
     vpc = {
       # relying on the defaults provided for EFS/NFS (2049/TCP + ingress)
@@ -80,7 +80,7 @@ resource "kubernetes_storage_class" "efs" {
   storage_provisioner = "efs.csi.aws.com"
   parameters = {
     provisioningMode = "efs-ap"
-    fileSystemId = module.efs.id
+    fileSystemId     = module.efs.id
     #subPathPattern = "${.PVC.namespace}/${.PVC.name}"
   }
 }

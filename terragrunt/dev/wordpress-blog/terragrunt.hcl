@@ -26,8 +26,8 @@ inputs = merge(include.root.locals.merged["wordpress_blog"],
     database_subnet_group_name      = dependency.rds_subnet_group.outputs.db_subnet_group_id
     vpc_private_subnets_cidr_blocks = dependency.vpc.outputs.private_subnets_cidr_blocks
 
-    eks_cluster_name             = dependency.eks.outputs.cluster_name
-    eks_node_security_group_id   = dependency.eks.outputs.node_security_group_id
+    eks_cluster_name           = dependency.eks.outputs.cluster_name
+    eks_node_security_group_id = dependency.eks.outputs.node_security_group_id
 
     acm_certificate_arn = dependency.tls.outputs.acm_certificate_arn
   }
